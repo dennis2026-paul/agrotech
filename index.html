@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgroTech - Cubierta Inteligente</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/estilo.css">
+</head>
+<body>
+
+    <section class="login" id="pantallaLogin" hidden>
+        <form class="login-caja" id="formLogin">
+            <div class="logo" aria-hidden="true">🌱</div>
+            <h1>AgroTech</h1>
+            <p class="login-sub">Inicia sesión para controlar tu invernadero</p>
+
+            <label for="correo">Correo</label>
+            <input id="correo" type="email" autocomplete="username" required>
+
+            <label for="clave">Contraseña</label>
+            <input id="clave" type="password" autocomplete="current-password" required>
+
+            <button type="submit" id="btnEntrar">Iniciar sesión</button>
+            <p class="error" id="errorLogin" role="alert"></p>
+        </form>
+    </section>
+
+    <div id="app" hidden>
+
+    <header class="cabecera">
+        <div class="marca">
+            <span class="logo" aria-hidden="true">🌱</span>
+            <div>
+                <h1>AgroTech</h1>
+                <p>Agricultura de precisión</p>
+            </div>
+        </div>
+        <div class="conexion" id="estadoConexion" data-estado="off">
+            <span class="punto" aria-hidden="true"></span>
+            <span>ESP32: <strong id="conexion">Desconectado</strong></span>
+        </div>
+        <button class="salir" id="btnSalir" type="button">Cerrar sesión</button>
+    </header>
+
+    <div class="banner desc" id="bannerDesc" role="alert" hidden>
+        <span id="textoDesc"></span>
+    </div>
+    <div class="banner alerta" id="bannerAlerta" role="alert" hidden>
+        <span id="textoBanner"></span>
+        <button type="button" id="btnVistas">Marcar como vistas</button>
+    </div>
+
+    <main>
+
+        <section class="panel control" aria-labelledby="t-control">
+            <h2 id="t-control">Cubierta y riego</h2>
+
+            <svg class="invernadero" id="invernadero" viewBox="0 -20 320 200" role="img" aria-label="Ilustración del invernadero con la cubierta">
+                <circle class="sol" cx="278" cy="8" r="14"/>
+                <rect class="pared" x="20" y="100" width="280" height="70" rx="4"/>
+                <g class="plantas">
+                    <path d="M70 170v-26M70 152c-12-2-16-12-16-12 10 0 16 6 16 12zM70 146c10-2 14-12 14-12-10 0-14 6-14 12z"/>
+                    <path d="M130 170v-30M130 156c-12-2-16-12-16-12 10 0 16 6 16 12zM130 148c10-2 14-12 14-12-10 0-14 6-14 12z"/>
+                    <path d="M190 170v-26M190 152c-12-2-16-12-16-12 10 0 16 6 16 12zM190 146c10-2 14-12 14-12-10 0-14 6-14 12z"/>
+                    <path d="M250 170v-30M250 156c-12-2-16-12-16-12 10 0 16 6 16 12zM250 148c10-2 14-12 14-12-10 0-14 6-14 12z"/>
+                </g>
+                <rect class="techo izq" x="20" y="96" width="150" height="7" rx="3"/>
+                <rect class="techo der" x="150" y="96" width="150" height="7" rx="3"/>
+                <line class="suelo" x1="0" y1="171" x2="320" y2="171"/>
+            </svg>
+
+            <p class="estado-cubierta">La cubierta está <strong id="cubierta">--</strong></p>
+
+            <label class="modo">
+                <input type="checkbox" id="chkAuto" checked>
+                <span class="interruptor" aria-hidden="true"></span>
+                <span>Modo automático</span>
+            </label>
+
+            <div class="botones">
+                <button id="btnAbrir" type="button">Abrir cubierta</button>
+                <button id="btnCerrar" type="button">Cerrar cubierta</button>
+            </div>
+            <div class="botones">
+                <button id="btnBombaOn" type="button">Encender riego</button>
+                <button id="btnBombaOff" type="button">Apagar riego</button>
+            </div>
+
+            <p class="aviso" id="aviso" role="status">Con el modo automático, el ESP32 decide según lluvia, sol y humedad del suelo.</p>
+        </section>
+
+        <section class="lecturas" aria-labelledby="t-estado">
+            <h2 id="t-estado">Estado del sistema</h2>
+
+            <div class="medidor temp">
+                <h3>🌡️ Temperatura</h3>
+                <p class="valor" id="temperatura" aria-live="polite">-- °C</p>
+                <div class="barra"><span id="barraTemp"></span></div>
+            </div>
+
+            <div class="medidor hum">
+                <h3>💧 Humedad del aire</h3>
+                <p class="valor" id="humedad" aria-live="polite">-- %</p>
+                <div class="barra"><span id="barraHum"></span></div>
+            </div>
+
+            <div class="medidor suelo">
+                <h3>🌿 Humedad del suelo</h3>
+                <p class="valor" id="suelo" aria-live="polite">-- %</p>
+                <div class="barra"><span id="barraSuelo"></span></div>
+            </div>
+
+            <ul class="chips">
+                <li>🌧️ Lluvia: <strong id="lluvia">--</strong></li>
+                <li>☀️ Sol: <strong id="sol">--</strong></li>
+                <li>🚿 Riego: <strong id="bomba">--</strong></li>
+            </ul>
+        </section>
+
+        <section class="panel graficas" aria-labelledby="t-graficas">
+            <div class="cab-panel">
+                <h2 id="t-graficas">Gráficas y resumen</h2>
+                <label class="selector">Mostrar
+                    <select id="cantidad">
+                        <option value="30">últimos 30 registros</option>
+                        <option value="60" selected>últimos 60 registros</option>
+                        <option value="180">últimos 180 registros</option>
+                    </select>
+                </label>
+            </div>
+
+            <div class="grid-graficas">
+                <div class="grafica"><canvas id="gAire" role="img" aria-label="Gráfica de temperatura y humedad del aire"></canvas></div>
+                <div class="grafica"><canvas id="gSuelo" role="img" aria-label="Gráfica de humedad del suelo"></canvas></div>
+            </div>
+
+            <h3 class="sub" id="resumenTitulo">Resumen</h3>
+            <div class="resumen" id="resumen"></div>
+        </section>
+
+        <section class="panel" aria-labelledby="t-alertas">
+            <div class="cab-panel">
+                <h2 id="t-alertas">Alertas recientes</h2>
+                <button type="button" class="chico" id="btnNotificar" hidden>Activar avisos del navegador</button>
+            </div>
+            <ul class="eventos" id="listaAlertas"><li class="vacio">Sin alertas.</li></ul>
+        </section>
+
+        <section class="panel" aria-labelledby="t-acciones">
+            <div class="cab-panel"><h2 id="t-acciones">Acciones realizadas</h2></div>
+            <ul class="eventos" id="listaAcciones"><li class="vacio">Sin acciones registradas.</li></ul>
+        </section>
+
+        <section class="panel historial" aria-labelledby="t-historial">
+            <div class="cab-panel">
+                <h2 id="t-historial">Historial de datos</h2>
+                <button type="button" class="chico" id="btnCSV">Descargar CSV</button>
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Hora</th>
+                        <th>Temperatura</th>
+                        <th>Humedad</th>
+                        <th>Suelo</th>
+                        <th>Cubierta</th>
+                        <th>Riego</th>
+                    </tr>
+                </thead>
+                <tbody id="tablaDatos">
+                    <tr class="vacio"><td colspan="7">Aún no hay datos registrados.</td></tr>
+                </tbody>
+            </table>
+        </section>
+
+    </main>
+
+    <footer>
+        <p>Proyecto AgroTech UNESUM - Carrera de Tecnologías de la Información</p>
+    </footer>
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
